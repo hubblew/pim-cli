@@ -1,0 +1,7 @@
+version: 1
+
+sources:
+  - key: local-dir
+    url: /path/to/local/directory
+  - key: git-repo
+    url: https://github.com/username/repo.git

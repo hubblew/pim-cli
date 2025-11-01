@@ -1,2 +1,2 @@
 # lmpm
-LLM instructions package manager 
+LMPM stands for Language Model Package Manager 

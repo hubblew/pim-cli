@@ -9,8 +9,8 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "lmpm",
-	Short: "LMPM - Language Model Package Manager",
-	Long:  `A command-line utility for managing language model packages.`,
+	Short: "Language Model Package Manager",
+	Long:  `A command-line utility for managing language models instruction files.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Default behavior when no subcommand is specified
 		cmd.Help()
