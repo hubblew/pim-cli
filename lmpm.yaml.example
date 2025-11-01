@@ -5,3 +5,16 @@ sources:
     url: /path/to/local/directory
   - key: git-repo
     url: https://github.com/username/repo.git
+
+targets:
+  - name: my-target
+    output: ./output/directory
+    include:
+      - source: local-dir
+        files:
+          - file1.txt
+          - folder/file2.txt
+      - source: git-repo
+        files:
+          - README.md
+          - docs/guide.md
