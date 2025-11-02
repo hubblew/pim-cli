@@ -1,7 +1,7 @@
-# LMPM Specification
+# PIM Specification
 
 ## Overview
-LMPM (Language Model Package Manager) is a command-line utility for managing language model packages.
+PIM (Prompt Instruction Manager) is a command-line utility for managing prompt instructions and related files.
 
 ## Configuration File
 
@@ -83,7 +83,7 @@ targets:
   - `files`: List of file paths to include from that source
 
 ### Configuration Location
-- Default: `lmpm.yaml` or `.lmpm.yaml` in the current directory
+- Default: `pim.yaml` or `.pim.yaml` in the current directory
 - Can be overridden with `--config` flag
 
 ## Features (To Be Defined)

@@ -4,21 +4,31 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/igor-vovk/lmpm/internal/config"
-	"github.com/igor-vovk/lmpm/internal/installer"
+	"github.com/igor-vovk/pim/internal/config"
+	"github.com/igor-vovk/pim/internal/installer"
 	"github.com/spf13/cobra"
 )
 
 var installCmd = &cobra.Command{
-	Use:   "install",
+	Use:   "install [directory]",
 	Short: "Install packages from sources to targets",
 	Long:  `Fetch sources and copy specified files to target directories.`,
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		configPath := "lmpm.yaml"
+		dir := "."
+		if len(args) > 0 {
+			dir = args[0]
+		}
+
+		if err := os.Chdir(dir); err != nil {
+			return fmt.Errorf("failed to change to directory %s: %w", dir, err)
+		}
+
+		configPath := "pim.yaml"
 		if _, err := os.Stat(configPath); os.IsNotExist(err) {
-			configPath = ".lmpm.yaml"
+			configPath = ".pim.yaml"
 			if _, err := os.Stat(configPath); os.IsNotExist(err) {
-				return fmt.Errorf("configuration file not found (lmpm.yaml or .lmpm.yaml)")
+				return fmt.Errorf("configuration file not found (pim.yaml or .pim.yaml)")
 			}
 		}
 

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	getter "github.com/hashicorp/go-getter"
-	"github.com/igor-vovk/lmpm/internal/config"
+	"github.com/igor-vovk/pim/internal/config"
 )
 
 type Installer struct {
@@ -21,7 +21,7 @@ func New(cfg *config.Config) *Installer {
 }
 
 func (i *Installer) Install() error {
-	tempDir, err := os.MkdirTemp("", "lmpm-*")
+	tempDir, err := os.MkdirTemp("", "pim-*")
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}

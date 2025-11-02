@@ -1,4 +1,4 @@
-module github.com/igor-vovk/lmpm
+module github.com/igor-vovk/pim
 
 go 1.25.3
 

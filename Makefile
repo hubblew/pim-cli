@@ -1,6 +1,6 @@
-.PHONY: all build test test-verbose clean
+.PHONY: all build test test-verbose clean install
 
-BINARY_NAME=lmpm
+BINARY_NAME=pim
 BUILD_DIR=.
 GO=go
 
@@ -22,3 +22,7 @@ clean:
 	@echo "Cleaning build artifacts..."
 	rm -f $(BUILD_DIR)/$(BINARY_NAME)
 	rm -f coverage.out coverage.html
+
+install:
+	@echo "Installing $(BINARY_NAME)..."
+	$(GO) install .

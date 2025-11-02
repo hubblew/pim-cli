@@ -1,2 +1,3 @@
-# lmpm
-LMPM stands for Language Model Package Manager 
+# PIM
+
+PIM stands for Prompt Instruction Manager 
