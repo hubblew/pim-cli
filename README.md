@@ -7,7 +7,6 @@
 - 📦 Fetch files from multiple sources (local directories, Git repositories)
 - 🔧 Flexible configuration using YAML
 - 🎯 Organize files into different targets
-- 🚀 Automatic `working_dir` source for quick setups
 - 📝 Simple and intuitive configuration format
 
 ## Installation

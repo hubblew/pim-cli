@@ -8,8 +8,8 @@ import (
 )
 
 type Source struct {
-	Key string `yaml:"key"`
-	URL string `yaml:"url"`
+	Name string `yaml:"name"`
+	URL  string `yaml:"url"`
 }
 
 type Include struct {
@@ -69,14 +69,14 @@ func (c *Config) addWorkingDirSource() error {
 
 	hasWorkingDir := false
 	for _, source := range c.Sources {
-		if source.Key == "working_dir" {
+		if source.Name == "working_dir" {
 			hasWorkingDir = true
 			break
 		}
 	}
 
 	if !hasWorkingDir {
-		c.Sources = append([]Source{{Key: "working_dir", URL: wd}}, c.Sources...)
+		c.Sources = append([]Source{{Name: "working_dir", URL: wd}}, c.Sources...)
 	}
 
 	return nil
@@ -96,13 +96,13 @@ func (c *Config) setDefaultSourceForIncludes() {
 func (c *Config) Validate() error {
 	sourceKeys := make(map[string]bool)
 	for _, source := range c.Sources {
-		if source.Key == "" {
+		if source.Name == "" {
 			return fmt.Errorf("source key cannot be empty")
 		}
-		if sourceKeys[source.Key] {
-			return fmt.Errorf("duplicate source key: %s", source.Key)
+		if sourceKeys[source.Name] {
+			return fmt.Errorf("duplicate source key: %s", source.Name)
 		}
-		sourceKeys[source.Key] = true
+		sourceKeys[source.Name] = true
 	}
 
 	for _, target := range c.Targets {

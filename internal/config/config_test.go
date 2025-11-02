@@ -138,7 +138,7 @@ targets:
 				if cfg != nil {
 					hasWorkingDir := false
 					for _, source := range cfg.Sources {
-						if source.Key == "working_dir" {
+						if source.Name == "working_dir" {
 							hasWorkingDir = true
 							break
 						}
@@ -180,8 +180,8 @@ func TestValidate(t *testing.T) {
 			config: &Config{
 				Version: 1,
 				Sources: []Source{
-					{Key: "s1", URL: "/path1"},
-					{Key: "s2", URL: "/path2"},
+					{Name: "s1", URL: "/path1"},
+					{Name: "s2", URL: "/path2"},
 				},
 				Targets: []Target{
 					{
@@ -200,8 +200,8 @@ func TestValidate(t *testing.T) {
 			config: &Config{
 				Version: 1,
 				Sources: []Source{
-					{Key: "same", URL: "/path1"},
-					{Key: "same", URL: "/path2"},
+					{Name: "same", URL: "/path1"},
+					{Name: "same", URL: "/path2"},
 				},
 			},
 			expectError: true,
@@ -212,7 +212,7 @@ func TestValidate(t *testing.T) {
 			config: &Config{
 				Version: 1,
 				Sources: []Source{
-					{Key: "", URL: "/path1"},
+					{Name: "", URL: "/path1"},
 				},
 			},
 			expectError: true,
@@ -223,7 +223,7 @@ func TestValidate(t *testing.T) {
 			config: &Config{
 				Version: 1,
 				Sources: []Source{
-					{Key: "s1", URL: "/path1"},
+					{Name: "s1", URL: "/path1"},
 				},
 				Targets: []Target{
 					{
@@ -263,7 +263,7 @@ func TestWorkingDirSource(t *testing.T) {
 	cfg := &Config{
 		Version: 1,
 		Sources: []Source{
-			{Key: "custom", URL: "/path/to/custom"},
+			{Name: "custom", URL: "/path/to/custom"},
 		},
 	}
 
@@ -275,8 +275,8 @@ func TestWorkingDirSource(t *testing.T) {
 		t.Fatalf("expected 2 sources, got %d", len(cfg.Sources))
 	}
 
-	if cfg.Sources[0].Key != "working_dir" {
-		t.Errorf("expected first source to be working_dir, got %s", cfg.Sources[0].Key)
+	if cfg.Sources[0].Name != "working_dir" {
+		t.Errorf("expected first source to be working_dir, got %s", cfg.Sources[0].Name)
 	}
 
 	if cfg.Sources[0].URL == "" {

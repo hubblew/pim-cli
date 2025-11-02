@@ -30,9 +30,9 @@ func (i *Installer) Install() error {
 	sourceCache := make(map[string]string)
 
 	for _, source := range i.config.Sources {
-		sourceDir := filepath.Join(tempDir, source.Key)
+		sourceDir := filepath.Join(tempDir, source.Name)
 
-		fmt.Printf("Fetching source '%s' from %s...\n", source.Key, source.URL)
+		fmt.Printf("Fetching source '%s' from %s...\n", source.Name, source.URL)
 
 		client := &getter.Client{
 			Src:  source.URL,
@@ -41,10 +41,10 @@ func (i *Installer) Install() error {
 		}
 
 		if err := client.Get(); err != nil {
-			return fmt.Errorf("failed to fetch source '%s': %w", source.Key, err)
+			return fmt.Errorf("failed to fetch source '%s': %w", source.Name, err)
 		}
 
-		sourceCache[source.Key] = sourceDir
+		sourceCache[source.Name] = sourceDir
 	}
 
 	for _, target := range i.config.Targets {
