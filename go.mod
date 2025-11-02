@@ -1,4 +1,4 @@
-module github.com/igor-vovk/pim
+module github.com/hubble-works/pim
 
 go 1.25.3
 

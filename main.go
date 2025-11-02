@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/igor-vovk/pim/cmd"
+	"github.com/hubble-works/pim/cmd"
 )
 
 func main() {

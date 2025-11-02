@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/igor-vovk/pim/internal/config"
-	"github.com/igor-vovk/pim/internal/installer"
+	"github.com/hubble-works/pim/internal/config"
+	"github.com/hubble-works/pim/internal/installer"
 	"github.com/spf13/cobra"
 )
 
