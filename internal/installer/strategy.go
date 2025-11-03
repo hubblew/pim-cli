@@ -6,11 +6,10 @@ import (
 
 // Strategy defines the interface for different installation strategies.
 //
-// Each strategy must implement methods to reset the output, initialize it,
-// add files, and close any resources when done.
+// Each strategy must implement methods to prepare the output, add files,
+// and close any resources when done.
 type Strategy interface {
-	Reset() error
-	Init() error
+	Prepare() error
 	AddFile(srcPath, relativePath string) error
 	Close() error
 }

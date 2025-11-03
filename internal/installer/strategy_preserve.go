@@ -14,14 +14,11 @@ func NewPreserveStrategy(outputPath string) *PreserveStrategy {
 	return &PreserveStrategy{outputPath: outputPath}
 }
 
-func (s *PreserveStrategy) Reset() error {
+func (s *PreserveStrategy) Prepare() error {
 	if err := os.RemoveAll(s.outputPath); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete output directory '%s': %w", s.outputPath, err)
 	}
-	return nil
-}
 
-func (s *PreserveStrategy) Init() error {
 	if err := os.MkdirAll(s.outputPath, 0755); err != nil {
 		return fmt.Errorf("failed to create output directory '%s': %w", s.outputPath, err)
 	}

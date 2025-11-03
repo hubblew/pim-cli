@@ -16,14 +16,11 @@ func NewConcatStrategy(outputPath string) *ConcatStrategy {
 	return &ConcatStrategy{outputPath: outputPath}
 }
 
-func (s *ConcatStrategy) Reset() error {
+func (s *ConcatStrategy) Prepare() error {
 	if err := os.Remove(s.outputPath); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete output file '%s': %w", s.outputPath, err)
 	}
-	return nil
-}
 
-func (s *ConcatStrategy) Init() error {
 	if err := os.MkdirAll(filepath.Dir(s.outputPath), 0755); err != nil {
 		return fmt.Errorf("failed to create output directory '%s': %w", filepath.Dir(s.outputPath), err)
 	}

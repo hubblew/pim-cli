@@ -51,11 +51,7 @@ func (i *Installer) Install() error {
 
 		strategy := createStrategy(target.Strategy, target.Output)
 
-		if err := strategy.Reset(); err != nil {
-			return err
-		}
-
-		if err := strategy.Init(); err != nil {
+		if err := strategy.Prepare(); err != nil {
 			return err
 		}
 		defer strategy.Close()
