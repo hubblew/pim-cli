@@ -1,0 +1,38 @@
+package installer
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+)
+
+type FlattenStrategy struct {
+	outputPath string
+}
+
+func NewFlattenStrategy(outputPath string) *FlattenStrategy {
+	return &FlattenStrategy{outputPath: outputPath}
+}
+
+func (s *FlattenStrategy) Reset() error {
+	if err := os.RemoveAll(s.outputPath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("failed to delete output directory '%s': %w", s.outputPath, err)
+	}
+	return nil
+}
+
+func (s *FlattenStrategy) Init() error {
+	if err := os.MkdirAll(s.outputPath, 0755); err != nil {
+		return fmt.Errorf("failed to create output directory '%s': %w", s.outputPath, err)
+	}
+	return nil
+}
+
+func (s *FlattenStrategy) AddFile(srcPath, relativePath string) error {
+	dstPath := filepath.Join(s.outputPath, filepath.Base(relativePath))
+	return copyFile(srcPath, dstPath)
+}
+
+func (s *FlattenStrategy) Close() error {
+	return nil
+}
