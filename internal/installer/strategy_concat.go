@@ -46,7 +46,7 @@ func (s *ConcatStrategy) AddFile(srcPath, _ string) error {
 	}
 
 	if _, err := s.outFile.WriteString("\n"); err != nil {
-		return err
+		return fmt.Errorf("failed to write newline to output file '%s': %w", s.outputPath, err)
 	}
 
 	return nil
