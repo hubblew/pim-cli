@@ -11,6 +11,8 @@ import (
 
 var configFlag string
 
+const DefaultConfigFileName = "pim.yaml"
+
 var installCmd = &cobra.Command{
 	Use:   "install [directory]",
 	Short: "Install packages from sources to targets",
@@ -26,24 +28,11 @@ var installCmd = &cobra.Command{
 			return fmt.Errorf("failed to change to directory %s: %w", dir, err)
 		}
 
-		configPath := configFlag
-		if configPath == "" {
-			// Auto-detect config file if not specified
-			configPath = "pim.yaml"
-			if _, err := os.Stat(configPath); os.IsNotExist(err) {
-				configPath = ".pim.yaml"
-				if _, err := os.Stat(configPath); os.IsNotExist(err) {
-					return fmt.Errorf("configuration file not found (pim.yaml or .pim.yaml)")
-				}
-			}
-		} else {
-			// Use specified config file
-			if _, err := os.Stat(configPath); os.IsNotExist(err) {
-				return fmt.Errorf("configuration file not found: %s", configPath)
-			}
+		if _, err := os.Stat(configFlag); os.IsNotExist(err) {
+			return fmt.Errorf("configuration file not found: %s", configFlag)
 		}
 
-		cfg, err := config.LoadConfig(configPath)
+		cfg, err := config.LoadConfig(configFlag)
 		if err != nil {
 			return fmt.Errorf("failed to load config: %w", err)
 		}
@@ -62,8 +51,8 @@ func init() {
 		&configFlag,
 		"config",
 		"c",
-		"",
-		"Path to configuration file (default: pim.yaml or .pim.yaml)",
+		DefaultConfigFileName,
+		"Path to configuration file",
 	)
 
 	rootCmd.AddCommand(installCmd)
