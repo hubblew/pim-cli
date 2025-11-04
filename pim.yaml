@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=./schema.json
+
+# This configuration file defines the sources and targets for generating
+# GitHub Copilot instructions for this project.
+
+version: 1
+
+sources:
+  - name: awesome-copilot
+    url: github.com/github/awesome-copilot
+
+targets:
+  - name: github-copilot-instructions
+    output: .github/copilot-instructions.md
+    include:
+      - "@awesome-copilot/instructions/go.instructions.md"
+      - "instructions/coding-style.md"
