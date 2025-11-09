@@ -30,15 +30,15 @@ and maintain compliance with organizational standards in multi-repo setups.
 
 ## Installation
 
-### From Source
+### macOS
 
 ```bash
-git clone https://github.com/hubblew/pim.git
-cd pim
-make install
+brew install hubblew/tap/pim
 ```
 
-This will install the `pim` binary to `$GOPATH/bin` (usually `~/go/bin`).
+### Pre-built Binaries
+
+Download pre-built binaries from the [releases page](https://github.com/hubblew/pim/releases).
 
 ## Quick Start
 
