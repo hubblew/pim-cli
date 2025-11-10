@@ -119,7 +119,7 @@ func TestCreateStrategyOutputPaths(t *testing.T) {
 
 			actualType := reflect.TypeOf(strategy)
 			if actualType != tt.expectedType {
-				t.Errorf("expected expectedType type %s, got %s", tt.expectedType, actualType)
+				t.Errorf("expected strategy type %s, got %s", tt.expectedType, actualType)
 			}
 		})
 	}
