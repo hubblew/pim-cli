@@ -7,11 +7,11 @@ import (
 	"text/template"
 )
 
-//go:embed generate_instructions.gohtml
+//go:embed generate_instructions_prompt.gohtml
 var templatesFS embed.FS
 
 func RenderGenerateInstructionsPrompt(instructionsDir string) (string, error) {
-	content, err := templatesFS.ReadFile("generate_instructions.gohtml")
+	content, err := templatesFS.ReadFile("generate_instructions_prompt.gohtml")
 	if err != nil {
 		return "", fmt.Errorf("failed to read template file: %w", err)
 	}
