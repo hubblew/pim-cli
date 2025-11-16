@@ -29,7 +29,7 @@ func (s *ConcatStrategy) Initialize(prompter UserPrompter) error {
 		if !isGeneratedByPim {
 			allowOverride, err := prompter.ConfirmOverwrite(s.outputPath)
 			if err != nil {
-				return fmt.Errorf("failed to check if file can be overridden: %w", err)
+				return fmt.Errorf("failed to prompt for file overwrite: %w", err)
 			}
 			if !allowOverride {
 				return fmt.Errorf("user declined to override file '%s'", s.outputPath)
