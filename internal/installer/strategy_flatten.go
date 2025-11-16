@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/hubblew/pim/internal/utils"
 	"github.com/spf13/afero"
 )
 
@@ -35,7 +36,7 @@ func (s *FlattenStrategy) Initialize(_ UserPrompter) error {
 
 func (s *FlattenStrategy) AddFile(srcPath, relativePath string) error {
 	dstPath := filepath.Join(s.outputPath, filepath.Base(relativePath))
-	return CopyFile(s.fs, srcPath, dstPath)
+	return utils.CopyFile(s.fs, srcPath, dstPath)
 }
 
 func (s *FlattenStrategy) Close() error {

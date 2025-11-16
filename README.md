@@ -38,9 +38,32 @@ brew install hubblew/tap/pim
 
 ### Pre-built Binaries
 
-Download pre-built binaries from the [releases page](https://github.com/hubblew/pim/releases).
+Download pre-built binaries from the [releases page](https://github.com/hubblew/pim-cli/releases).
 
 ## Quick Start
+
+### Option 1: Interactive Setup (Recommended)
+
+Use the interactive `init` command to automatically detect your LLM tools and set up PIM:
+
+```bash
+pim init
+```
+
+This will:
+- Detect LLM CLI tools (like GitHub Copilot) in your system
+- Ask you to choose a configuration file name (default: `pim.yaml`)
+- Create an instructions directory (default: `./instructions`)
+- Discover existing instruction files (`.github/copilot-instructions.md`, `AGENTS.md`, etc.)
+- Generate a `pim.yaml` configuration file
+
+Then simply run:
+
+```bash
+pim install .
+```
+
+### Option 2: Manual Setup
 
 1. Create instruction files:
 
@@ -176,6 +199,7 @@ targets:
 
 ### Commands
 
+- `pim init` - Initialize a new PIM configuration (interactive setup)
 - `pim install [directory]` - Fetch files from sources to targets (defaults to current directory)
 - `pim version` - Print version information
 - `pim help` - Show help

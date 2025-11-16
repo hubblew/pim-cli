@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hubblew/pim/internal/config"
+	"github.com/hubblew/pim/internal/utils"
 	"github.com/spf13/afero"
 )
 
@@ -30,7 +31,7 @@ func NewStrategy(
 	case config.StrategyPreserve:
 		return NewPreserveStrategy(fs, outputPath), nil
 	case "":
-		if HasMdExtension(outputPath) {
+		if utils.HasMdExtension(outputPath) {
 			return NewStrategy(fs, config.StrategyConcat, outputPath)
 		} else {
 			return NewStrategy(fs, config.StrategyFlatten, outputPath)
