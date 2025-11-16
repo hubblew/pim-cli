@@ -20,7 +20,7 @@ func defaultHeader() frontmatterHeader {
 }
 
 // IsPimGenerated checks if the markdown file at the given path
-// contains a frontmatter block with the "generated-by" key set to "github.com/hubblew/pim-cli".
+// contains a frontmatter block with the "generatedBy" key set to "github.com/hubblew/pim-cli".
 func IsPimGenerated(path string) (bool, error) {
 	var frontmatter frontmatterHeader
 	err := utils.ReadFrontmatter(path, &frontmatter)
