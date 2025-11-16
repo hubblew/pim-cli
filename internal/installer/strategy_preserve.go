@@ -16,7 +16,7 @@ func NewPreserveStrategy(path string) *PreserveStrategy {
 	}
 }
 
-func (s *PreserveStrategy) Prepare() error {
+func (s *PreserveStrategy) Prepare(_ bool) error {
 	if err := os.RemoveAll(s.outputPath); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete output directory '%s': %w", s.outputPath, err)
 	}

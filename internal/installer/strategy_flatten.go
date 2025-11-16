@@ -16,7 +16,7 @@ func NewFlattenStrategy(path string) *FlattenStrategy {
 	}
 }
 
-func (s *FlattenStrategy) Prepare() error {
+func (s *FlattenStrategy) Prepare(_ bool) error {
 	if err := os.RemoveAll(s.outputPath); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete output directory '%s': %w", s.outputPath, err)
 	}
