@@ -30,7 +30,12 @@ func (i *Installer) Install(options *Options) error {
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func(path string) {
+		err := os.RemoveAll(path)
+		if err != nil {
+			fmt.Printf("failed to remove temp directory '%s': %v\n", path, err)
+		}
+	}(tempDir)
 
 	sourceDirsByName := make(map[string]string)
 
@@ -59,52 +64,66 @@ func (i *Installer) Install(options *Options) error {
 	}
 
 	for _, target := range options.Config.Targets {
-		fmt.Printf("Installing target '%s' to %s...\n", target.Name, target.Output)
-
-		strategy, err := NewStrategy(i.fs, target.StrategyType, target.Output)
+		err := InstallTarget(i, &target, sourceDirsByName, options.UserPrompter)
 		if err != nil {
-			return fmt.Errorf("failed to create strategy for target '%s': %w", target.Name, err)
-		}
-
-		if err := strategy.Initialize(options.UserPrompter); err != nil {
 			return err
-		}
-		defer strategy.Close()
-
-		for _, include := range target.IncludeParsed {
-			sourceDir, ok := sourceDirsByName[include.Source]
-			if !ok {
-				return fmt.Errorf("source '%s' not found", include.Source)
-			}
-
-			srcPath := filepath.Join(sourceDir, include.File)
-
-			// Use Glob to handle both literal paths and wildcard patterns
-			matches, err := afero.Glob(i.fs, srcPath)
-			if err != nil {
-				return fmt.Errorf("failed to expand pattern '%s': %w", include.File, err)
-			}
-
-			if len(matches) == 0 {
-				return fmt.Errorf("no files matched pattern '%s'", include.File)
-			}
-
-			for _, match := range matches {
-				// Get the relative path from sourceDir
-				relPath, err := filepath.Rel(sourceDir, match)
-				if err != nil {
-					return fmt.Errorf("failed to get relative path for '%s': %w", match, err)
-				}
-
-				if err := strategy.AddFile(match, relPath); err != nil {
-					return fmt.Errorf("failed to add file '%s': %w", relPath, err)
-				}
-
-				fmt.Printf("  ✓ %s\n", relPath)
-			}
 		}
 	}
 
 	fmt.Println("Installation complete!")
+	return nil
+}
+
+func InstallTarget(i *Installer, target *config.Target, sourceDirsByName map[string]string, prompter UserPrompter) error {
+	fmt.Printf("Installing target '%s' to %s...\n", target.Name, target.Output)
+
+	strategy, err := NewStrategy(i.fs, target.StrategyType, target.Output)
+	if err != nil {
+		return fmt.Errorf("failed to create strategy for target '%s': %w", target.Name, err)
+	}
+
+	if err := strategy.Initialize(prompter); err != nil {
+		return err
+	}
+	defer func(strategy Strategy) {
+		err := strategy.Close()
+		if err != nil {
+			fmt.Printf("failed to close strategy for target '%s': %v\n", target.Name, err)
+		}
+	}(strategy)
+
+	for _, include := range target.IncludeParsed {
+		sourceDir, ok := sourceDirsByName[include.Source]
+		if !ok {
+			return fmt.Errorf("source '%s' not found", include.Source)
+		}
+
+		srcPath := filepath.Join(sourceDir, include.File)
+
+		// Use Glob to handle both literal paths and wildcard patterns
+		matches, err := afero.Glob(i.fs, srcPath)
+		if err != nil {
+			return fmt.Errorf("failed to expand pattern '%s': %w", include.File, err)
+		}
+
+		if len(matches) == 0 {
+			return fmt.Errorf("no files matched pattern '%s'", include.File)
+		}
+
+		for _, match := range matches {
+			// Get the relative path from sourceDir
+			relPath, err := filepath.Rel(sourceDir, match)
+			if err != nil {
+				return fmt.Errorf("failed to get relative path for '%s': %w", match, err)
+			}
+
+			if err := strategy.AddFile(match, relPath); err != nil {
+				return fmt.Errorf("failed to add file '%s': %w", relPath, err)
+			}
+
+			fmt.Printf("  ✓ %s\n", relPath)
+		}
+	}
+
 	return nil
 }

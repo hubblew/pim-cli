@@ -2,10 +2,10 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/goccy/go-yaml"
+	"github.com/spf13/afero"
 )
 
 type Source struct {
@@ -50,8 +50,9 @@ func NewConfig() *Config {
 	}
 }
 
-func LoadConfig(path string) (*Config, error) {
-	data, err := os.ReadFile(path)
+// LoadConfig loads configuration from the given path using the provided filesystem.
+func LoadConfig(fs afero.Fs, configPath string, workingDir string) (*Config, error) {
+	data, err := afero.ReadFile(fs, configPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
@@ -61,7 +62,7 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("failed to parse config file: %w", err)
 	}
 
-	if err := cfg.addWorkingDirSource(); err != nil {
+	if err := cfg.addWorkingDirSource(workingDir); err != nil {
 		return nil, err
 	}
 
@@ -76,12 +77,7 @@ func LoadConfig(path string) (*Config, error) {
 	return cfg, nil
 }
 
-func (c *Config) addWorkingDirSource() error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("failed to get working directory: %w", err)
-	}
-
+func (c *Config) addWorkingDirSource(wd string) error {
 	hasWorkingDir := false
 	for _, source := range c.Sources {
 		if source.Name == DefaultSourceName {

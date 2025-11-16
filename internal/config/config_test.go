@@ -1,15 +1,16 @@
 package config
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
+
+	"github.com/spf13/afero"
 )
 
 func TestLoadConfig(t *testing.T) {
 	tests := []struct {
 		name        string
 		config      string
+		workingDir  string
 		expectError bool
 		errorMsg    string
 	}{
@@ -28,6 +29,7 @@ targets:
       - "@source1/file1.txt"
       - "@source2/file2.txt"
 `,
+			workingDir:  "/test/working/dir",
 			expectError: false,
 		},
 		{
@@ -40,6 +42,7 @@ targets:
       - "file1.txt"
       - "file2.txt"
 `,
+			workingDir:  "/test/working/dir",
 			expectError: false,
 		},
 		{
@@ -51,6 +54,7 @@ sources:
   - name: duplicate
     url: /path/two
 `,
+			workingDir:  "/test/working/dir",
 			expectError: true,
 			errorMsg:    "duplicate source name: duplicate",
 		},
@@ -61,6 +65,7 @@ sources:
   - name: ""
     url: /path/to/source
 `,
+			workingDir:  "/test/working/dir",
 			expectError: true,
 			errorMsg:    "source name cannot be empty",
 		},
@@ -76,6 +81,7 @@ targets:
     include:
       - "@nonexistent/file.txt"
 `,
+			workingDir:  "/test/working/dir",
 			expectError: true,
 			errorMsg:    "target 'target1' references unknown source: nonexistent",
 		},
@@ -83,6 +89,7 @@ targets:
 			name: "empty config with defaults",
 			config: `version: 1
 `,
+			workingDir:  "/test/working/dir",
 			expectError: false,
 		},
 		{
@@ -97,20 +104,21 @@ targets:
     include:
       - "file1.txt"
 `,
+			workingDir:  "/test/working/dir",
 			expectError: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tmpDir := t.TempDir()
-			configPath := filepath.Join(tmpDir, "test-config.yaml")
+			fs := afero.NewMemMapFs()
+			configPath := "test-config.yaml"
 
-			if err := os.WriteFile(configPath, []byte(tt.config), 0644); err != nil {
+			if err := afero.WriteFile(fs, configPath, []byte(tt.config), 0644); err != nil {
 				t.Fatalf("failed to write test config: %v", err)
 			}
 
-			cfg, err := LoadConfig(configPath)
+			cfg, err := LoadConfig(fs, configPath, tt.workingDir)
 
 			if tt.expectError {
 				if err == nil {
@@ -131,8 +139,11 @@ targets:
 				if cfg != nil {
 					hasWorkingDir := false
 					for _, source := range cfg.Sources {
-						if source.Name == "working_dir" {
+						if source.Name == DefaultSourceName {
 							hasWorkingDir = true
+							if source.URL != tt.workingDir {
+								t.Errorf("expected working_dir URL to be %q, got %q", tt.workingDir, source.URL)
+							}
 							break
 						}
 					}
@@ -240,7 +251,7 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func TestWorkingDirSource(t *testing.T) {
+func TestAddWorkingDirSource(t *testing.T) {
 	cfg := &Config{
 		Version: 1,
 		Sources: []Source{
@@ -248,7 +259,7 @@ func TestWorkingDirSource(t *testing.T) {
 		},
 	}
 
-	if err := cfg.addWorkingDirSource(); err != nil {
+	if err := cfg.addWorkingDirSource("/test/workdir"); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
@@ -256,33 +267,12 @@ func TestWorkingDirSource(t *testing.T) {
 		t.Fatalf("expected 2 sources, got %d", len(cfg.Sources))
 	}
 
-	if cfg.Sources[0].Name != "working_dir" {
+	if cfg.Sources[0].Name != DefaultSourceName {
 		t.Errorf("expected first source to be working_dir, got %s", cfg.Sources[0].Name)
 	}
 
-	if cfg.Sources[0].URL == "" {
-		t.Error("expected working_dir URL to be set")
-	}
-}
-
-func TestWorkingDirSourceNotDuplicated(t *testing.T) {
-	cfg := &Config{
-		Version: 1,
-		Sources: []Source{
-			{Name: "working_dir", URL: "/custom/path"},
-		},
-	}
-
-	if err := cfg.addWorkingDirSource(); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if len(cfg.Sources) != 1 {
-		t.Fatalf("expected 1 source, got %d", len(cfg.Sources))
-	}
-
-	if cfg.Sources[0].URL != "/custom/path" {
-		t.Errorf("expected working_dir URL to remain /custom/path, got %s", cfg.Sources[0].URL)
+	if cfg.Sources[0].URL != "/test/workdir" {
+		t.Errorf("expected working_dir URL to be /test/workdir, got %s", cfg.Sources[0].URL)
 	}
 }
 
@@ -304,7 +294,7 @@ func TestDefaultSourceForIncludes(t *testing.T) {
 
 	cfg.setDefaultSourceForIncludes()
 
-	if cfg.Targets[0].IncludeParsed[0].Source != "working_dir" {
+	if cfg.Targets[0].IncludeParsed[0].Source != DefaultSourceName {
 		t.Errorf("expected first include source to be working_dir, got %s", cfg.Targets[0].IncludeParsed[0].Source)
 	}
 
@@ -312,7 +302,7 @@ func TestDefaultSourceForIncludes(t *testing.T) {
 		t.Errorf("expected second include source to remain custom, got %s", cfg.Targets[0].IncludeParsed[1].Source)
 	}
 
-	if cfg.Targets[0].IncludeParsed[2].Source != "working_dir" {
+	if cfg.Targets[0].IncludeParsed[2].Source != DefaultSourceName {
 		t.Errorf("expected third include source to be working_dir, got %s", cfg.Targets[0].IncludeParsed[2].Source)
 	}
 }

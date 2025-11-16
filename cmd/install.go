@@ -29,12 +29,17 @@ var installCmd = &cobra.Command{
 		if err := os.Chdir(dir); err != nil {
 			return fmt.Errorf("failed to change to directory %s: %w", dir, err)
 		}
+		workingDir, err := os.Getwd()
+		if err != nil {
+			return fmt.Errorf("failed to get working directory: %w", err)
+		}
 
-		if _, err := os.Stat(configPathFlag); os.IsNotExist(err) {
+		fs := afero.NewOsFs()
+		if _, err := fs.Stat(configPathFlag); os.IsNotExist(err) {
 			return fmt.Errorf("configuration file not found: %s", configPathFlag)
 		}
 
-		cfg, err := config.LoadConfig(configPathFlag)
+		cfg, err := config.LoadConfig(fs, configPathFlag, workingDir)
 		if err != nil {
 			return fmt.Errorf("failed to load config: %w", err)
 		}
@@ -51,7 +56,6 @@ var installCmd = &cobra.Command{
 			UserPrompter: prompter,
 		}
 
-		fs := afero.NewOsFs()
 		if err := installer.NewInstaller(fs).Install(&opts); err != nil {
 			return fmt.Errorf("installation failed: %w", err)
 		}
