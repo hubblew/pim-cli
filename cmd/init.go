@@ -2,23 +2,18 @@ package cmd
 
 import (
 	"bufio"
-	"bytes"
-	"embed"
 	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
-	"text/template"
 
 	"github.com/goccy/go-yaml"
 	"github.com/hubblew/pim/internal/agents"
 	"github.com/hubblew/pim/internal/config"
+	"github.com/hubblew/pim/internal/templates"
 	"github.com/spf13/cobra"
 )
-
-//go:embed templates/generate_instructions.gohtml
-var templatesFS embed.FS
 
 var initCmd = &cobra.Command{
 	Use:   "init",
@@ -241,25 +236,11 @@ func generateConfig(tool agents.AgentTool, instructionsDir string, existingFiles
 func generateInstructions(tool agents.AgentTool, instructionsDir string) error {
 	fmt.Printf("\nGenerating instruction files with %s (this may take a while)...\n\n", tool.Descriptor())
 
-	tmplContent, err := templatesFS.ReadFile("templates/generate_instructions.gohtml")
+	prompt, err := templates.RenderGenerateInstructionsPrompt(instructionsDir)
 	if err != nil {
-		return fmt.Errorf("failed to read template: %w", err)
+		return fmt.Errorf("failed to render instructions template: %w", err)
 	}
 
-	tmpl, err := template.New("generate_instructions").Parse(string(tmplContent))
-	if err != nil {
-		return fmt.Errorf("failed to parse template: %w", err)
-	}
-
-	var buf bytes.Buffer
-	data := map[string]string{
-		"InstructionsDir": instructionsDir,
-	}
-	if err := tmpl.Execute(&buf, data); err != nil {
-		return fmt.Errorf("failed to execute template: %w", err)
-	}
-
-	prompt := buf.String()
 	_, err = tool.ExecuteCommand(prompt)
 	if err != nil {
 		return fmt.Errorf("failed to execute agent command: %w", err)
