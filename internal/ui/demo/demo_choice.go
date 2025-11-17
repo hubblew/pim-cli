@@ -42,7 +42,7 @@ func demoVertical() {
 		{Label: "extra-large", Value: "xl"},
 	}
 
-	model := ui.NewVerticalChoiceDialog("Select your size:", choices)
+	model := ui.NewChoiceDialog("Select your size:", choices).Vertical()
 	model.Cursor = 1 // Default to "medium"
 
 	choice, err := model.Run()

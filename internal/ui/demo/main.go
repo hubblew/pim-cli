@@ -32,7 +32,7 @@ func main() {
 	fmt.Println("═════════════════════════════════════════════════")
 	fmt.Println()
 
-	model := ui.NewVerticalChoiceDialog("Select a demo to run:", choices)
+	model := ui.NewChoiceDialog("Select a demo to run:", choices).Vertical()
 	choice, err := model.Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)

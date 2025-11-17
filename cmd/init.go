@@ -54,7 +54,7 @@ func runInit(_ *cobra.Command, _ []string) error {
 			}
 		}
 
-		dialog := ui.NewVerticalChoiceDialog("\nSelect an agent:", choices)
+		dialog := ui.NewChoiceDialog("\nSelect an agent:", choices).Vertical()
 		choice, err := dialog.Run()
 		if err != nil {
 			return fmt.Errorf("failed to run selection dialog: %w", err)

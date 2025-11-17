@@ -44,9 +44,7 @@ func NewChoiceDialog(prompt string, choices []Choice) ChoiceDialog {
 	}
 }
 
-// NewVerticalChoiceDialog creates a new choice selector with vertical layout.
-func NewVerticalChoiceDialog(prompt string, choices []Choice) ChoiceDialog {
-	d := NewChoiceDialog(prompt, choices)
+func (d ChoiceDialog) Vertical() ChoiceDialog {
 	d.Layout = LayoutVertical
 	return d
 }
