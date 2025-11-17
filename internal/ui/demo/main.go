@@ -16,6 +16,7 @@ func main() {
 	demos := []Demo{
 		{Name: "Choice Component Demos", Run: runChoiceDemos},
 		{Name: "Press Any Key Demo", Run: runPressAnyKeyDemos},
+		{Name: "Spinner Dialog Demos", Run: runSpinnerDemos},
 	}
 
 	choices := make([]ui.Choice, len(demos))
@@ -40,7 +41,7 @@ func main() {
 	}
 
 	if choice == nil {
-		fmt.Println("\n❌ Cancelled")
+		fmt.Println("\nBye.")
 		os.Exit(0)
 	}
 

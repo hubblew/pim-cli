@@ -31,12 +31,18 @@ func runInit(_ *cobra.Command, _ []string) error {
 	reader := bufio.NewReader(os.Stdin)
 
 	// Step 1: Detect LLM agents
-	fmt.Println("Detecting CLI agents in your system...")
-	tools := agents.DetectAgentTools()
+	var tools []agents.AgentTool
+	err := ui.RunWithSpinner("Detecting CLI agents in your system...", func() error {
+		tools = agents.DetectAgentTools()
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to detect agents: %w", err)
+	}
 
 	if len(tools) == 0 {
 		fmt.Println("No CLI agents detected in your system.")
-		fmt.Println("Currently supported tools: GitHub Copilot")
+		fmt.Println("Currently supported tools: GitHub Copilot, Google Gemini CLI.")
 		return nil
 	}
 

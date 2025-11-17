@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/go-getter"
 	"github.com/hubblew/pim/internal/config"
+	"github.com/hubblew/pim/internal/ui"
 	"github.com/spf13/afero"
 )
 
@@ -48,19 +49,27 @@ func (i *Installer) Install(options *Options) error {
 
 		var sourceDir = filepath.Join(tempDir, source.Name)
 
-		fmt.Printf("Fetching source '%s' from %s...\n", source.Name, source.URL)
+		err = ui.RunWithSpinner(
+			fmt.Sprintf("Fetching source '%s' from %s...\n", source.Name, source.URL),
+			func() error {
+				client := &getter.Client{
+					Src:  source.URL,
+					Dst:  sourceDir,
+					Mode: getter.ClientModeDir,
+				}
 
-		client := &getter.Client{
-			Src:  source.URL,
-			Dst:  sourceDir,
-			Mode: getter.ClientModeDir,
-		}
+				if err := client.Get(); err != nil {
+					return err
+				}
 
-		if err := client.Get(); err != nil {
+				sourceDirsByName[source.Name] = sourceDir
+				return nil
+			})
+		if err != nil {
 			return fmt.Errorf("failed to fetch source '%s': %w", source.Name, err)
 		}
 
-		sourceDirsByName[source.Name] = sourceDir
+		fmt.Printf("Source '%s' fetched successfully.\n", source.Name)
 	}
 
 	for _, target := range options.Config.Targets {
