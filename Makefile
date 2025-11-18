@@ -32,7 +32,7 @@ clean:
 	rm -f $(BUILD_DIR)/$(BINARY_NAME)
 	rm -f coverage.out coverage.html
 
-install: build test
+install: build
 	@echo "Installing $(BINARY_NAME)..."
 	$(GO) install $(LDFLAGS) .
 

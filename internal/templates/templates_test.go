@@ -8,7 +8,7 @@ import (
 func TestRenderGenerateInstructionsPrompt(t *testing.T) {
 	tpl, err := RenderGenerateInstructionsPrompt("/path/to/instructions")
 
-	if (strings.Contains(tpl, "/path/to/instructions")) == false {
+	if strings.Contains(tpl, "/path/to/instructions") == false {
 		t.Fatalf("Expected instructionsDir to be included in the template output")
 	}
 	if err != nil {
