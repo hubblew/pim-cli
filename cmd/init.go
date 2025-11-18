@@ -247,7 +247,7 @@ func generateConfig(tool agents.AgentTool, instructionsDir string, existingFiles
 		cfg.Targets = []config.Target{target}
 		break
 	default:
-		return nil, fmt.Errorf("unsupported tool: %s", tool)
+		return nil, fmt.Errorf("unsupported tool: %s", tool.Descriptor())
 	}
 
 	return cfg, nil
