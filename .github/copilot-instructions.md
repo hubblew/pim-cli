@@ -385,6 +385,8 @@ Follow idiomatic Go practices and community standards when writing Go code. Thes
 ## Project Code style
 
 * Prefer functions to methods when the receiver is not needed.
+* When defining structs that implement interfaces, add `var _ Interface = (*Struct)(nil)` to ensure at compile time that
+  the struct implements the interface.
 ## Style for yaml files
 
 * Always use camelCase for key names.

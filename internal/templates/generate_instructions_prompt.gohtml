@@ -1,0 +1,29 @@
+You are helping to generate instruction files for an AI coding assistant.
+
+Please examine the files in the following directory: {{.InstructionsDir}}
+
+Based on the content and structure of the existing files, generate new instruction files that would be useful for AI-powered development tools like GitHub Copilot.
+
+Consider:
+- Programming languages and frameworks used in the project
+- Coding standards and conventions
+- Architecture patterns
+- Best practices specific to this project
+
+For each instruction file you create:
+1. Use a descriptive filename (e.g., "go-conventions.md", "api-design.md")
+2. Include a clear description in the frontmatter
+3. Optionally specify file patterns with "applyTo" in the frontmatter
+4. Write clear, actionable instructions
+
+Example format:
+---
+description: 'Brief description of what these instructions cover'
+applyTo: '**/*.go'  # Optional: file pattern to apply these instructions to
+---
+
+# Title
+
+Your detailed instructions here...
+
+Please suggest 3-5 instruction files that would be most beneficial for this project.

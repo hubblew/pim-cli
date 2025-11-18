@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/go-getter"
 	"github.com/hubblew/pim/internal/config"
+	"github.com/hubblew/pim/internal/ui"
 	"github.com/spf13/afero"
 )
 
@@ -37,7 +38,7 @@ func (i *Installer) Install(options *Options) error {
 		}
 	}(tempDir)
 
-	sourceDirsByName := make(map[string]string)
+	sourceDirsByName := make(map[string]string, len(options.Config.Sources))
 
 	for _, source := range options.Config.Sources {
 		if info, err := os.Stat(source.URL); err == nil && info.IsDir() {
@@ -48,24 +49,31 @@ func (i *Installer) Install(options *Options) error {
 
 		var sourceDir = filepath.Join(tempDir, source.Name)
 
-		fmt.Printf("Fetching source '%s' from %s...\n", source.Name, source.URL)
+		err = ui.RunWithSpinner(
+			fmt.Sprintf("Fetching source '%s' from %s...\n", source.Name, source.URL),
+			func() error {
+				client := &getter.Client{
+					Src:  source.URL,
+					Dst:  sourceDir,
+					Mode: getter.ClientModeDir,
+				}
 
-		client := &getter.Client{
-			Src:  source.URL,
-			Dst:  sourceDir,
-			Mode: getter.ClientModeDir,
-		}
+				if err := client.Get(); err != nil {
+					return err
+				}
 
-		if err := client.Get(); err != nil {
+				sourceDirsByName[source.Name] = sourceDir
+				return nil
+			})
+		if err != nil {
 			return fmt.Errorf("failed to fetch source '%s': %w", source.Name, err)
 		}
 
-		sourceDirsByName[source.Name] = sourceDir
+		fmt.Printf("Source '%s' fetched successfully.\n", source.Name)
 	}
 
 	for _, target := range options.Config.Targets {
-		err := InstallTarget(i, &target, sourceDirsByName, options.UserPrompter)
-		if err != nil {
+		if err := InstallTarget(i, &target, sourceDirsByName, options.UserPrompter); err != nil {
 			return err
 		}
 	}
@@ -86,8 +94,7 @@ func InstallTarget(i *Installer, target *config.Target, sourceDirsByName map[str
 		return err
 	}
 	defer func(strategy Strategy) {
-		err := strategy.Close()
-		if err != nil {
+		if err := strategy.Close(); err != nil {
 			fmt.Printf("failed to close strategy for target '%s': %v\n", target.Name, err)
 		}
 	}(strategy)

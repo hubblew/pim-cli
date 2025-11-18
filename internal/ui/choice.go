@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 // Choice represents a single option in a choice selector.
@@ -12,6 +11,21 @@ type Choice struct {
 	Label string
 	Value any
 }
+
+func ChoicesYesNo() []Choice {
+	return []Choice{
+		{Label: "Yes", Value: true},
+		{Label: "No", Value: false},
+	}
+}
+
+// Layout defines how choices are rendered.
+type Layout int
+
+const (
+	LayoutHorizontal Layout = iota
+	LayoutVertical
+)
 
 // ChoiceDialog is a Bubble Tea model for selecting from multiple choices.
 type ChoiceDialog struct {
@@ -21,32 +35,10 @@ type ChoiceDialog struct {
 	Selected    bool
 	Cancelled   bool
 	StyleConfig StyleConfig
+	Layout      Layout
 }
 
 var _ tea.Model = (*ChoiceDialog)(nil)
-
-// StyleConfig holds styling configuration for the choice component.
-type StyleConfig struct {
-	HighlightStyle lipgloss.Style
-	NormalStyle    lipgloss.Style
-	PromptStyle    lipgloss.Style
-	HelpStyle      lipgloss.Style
-}
-
-// DefaultStyleConfig returns sensible default styles.
-func DefaultStyleConfig() StyleConfig {
-	return StyleConfig{
-		HighlightStyle: lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("2")),
-		NormalStyle: lipgloss.NewStyle().
-			Foreground(lipgloss.Color("240")),
-		PromptStyle: lipgloss.NewStyle(),
-		HelpStyle: lipgloss.NewStyle().
-			Foreground(lipgloss.Color("240")).
-			Faint(true),
-	}
-}
 
 // NewChoiceDialog creates a new choice selector model.
 func NewChoiceDialog(prompt string, choices []Choice) ChoiceDialog {
@@ -55,7 +47,13 @@ func NewChoiceDialog(prompt string, choices []Choice) ChoiceDialog {
 		Choices:     choices,
 		Cursor:      0,
 		StyleConfig: DefaultStyleConfig(),
+		Layout:      LayoutHorizontal,
 	}
+}
+
+func (d ChoiceDialog) Vertical() ChoiceDialog {
+	d.Layout = LayoutVertical
+	return d
 }
 
 func (d ChoiceDialog) Init() tea.Cmd {
@@ -74,13 +72,13 @@ func (d ChoiceDialog) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			d.Selected = true
 			return d, tea.Quit
 
-		case "left", "h", "up", "k":
+		case "left", "up":
 			d.Cursor--
 			if d.Cursor < 0 {
 				d.Cursor = len(d.Choices) - 1
 			}
 
-		case "right", "l", "down", "j":
+		case "right", "down":
 			d.Cursor++
 			if d.Cursor >= len(d.Choices) {
 				d.Cursor = 0
@@ -99,8 +97,7 @@ func (d ChoiceDialog) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				for i, choice := range d.Choices {
 					if len(choice.Label) > 0 && strings.ToLower(string(choice.Label[0])) == key {
 						d.Cursor = i
-						d.Selected = true
-						return d, tea.Quit
+						return d, nil
 					}
 				}
 			}
@@ -119,43 +116,61 @@ func (d ChoiceDialog) View() string {
 
 	if d.Prompt != "" {
 		b.WriteString(d.StyleConfig.PromptStyle.Render(d.Prompt))
-		b.WriteString(" ")
-	}
-
-	for i, choice := range d.Choices {
-		if i > 0 {
-			b.WriteString(" / ")
-		}
-
-		if i == d.Cursor {
-			b.WriteString(d.StyleConfig.HighlightStyle.Render(choice.Label))
+		if d.Layout == LayoutVertical {
+			b.WriteString("\n")
 		} else {
-			b.WriteString(d.StyleConfig.NormalStyle.Render(choice.Label))
+			b.WriteString(" ")
 		}
 	}
 
-	b.WriteString("\n")
+	if d.Layout == LayoutVertical {
+		for i, choice := range d.Choices {
+			cursor := "  "
+			if i == d.Cursor {
+				cursor = "> "
+				b.WriteString(cursor)
+				b.WriteString(d.StyleConfig.HighlightStyle.Render(choice.Label))
+			} else {
+				b.WriteString(cursor)
+				b.WriteString(d.StyleConfig.NormalStyle.Render(choice.Label))
+			}
+			b.WriteString("\n")
+		}
+	} else {
+		for i, choice := range d.Choices {
+			if i > 0 {
+				b.WriteString(" / ")
+			}
+
+			if i == d.Cursor {
+				b.WriteString(d.StyleConfig.HighlightStyle.Render(choice.Label))
+			} else {
+				b.WriteString(d.StyleConfig.NormalStyle.Render(choice.Label))
+			}
+		}
+		b.WriteString("\n")
+	}
+
 	b.WriteString(d.StyleConfig.HelpStyle.Render("(Use arrow keys to select, Enter to confirm, Esc to cancel)"))
 	b.WriteString("\n")
 
 	return b.String()
 }
 
-// GetSelectedChoice returns the currently selected choice.
-func (d ChoiceDialog) GetSelectedChoice() *Choice {
-	if d.Cancelled || !d.Selected || d.Cursor >= len(d.Choices) {
+// GetHighlightedChoice returns the currently highlighted choice.
+func (d ChoiceDialog) GetHighlightedChoice() *Choice {
+	if d.Cursor < 0 || d.Cursor >= len(d.Choices) {
 		return nil
 	}
 	return &d.Choices[d.Cursor]
 }
 
-// GetSelectedValue returns the value of the selected choice.
-func (d ChoiceDialog) GetSelectedValue() any {
-	choice := d.GetSelectedChoice()
-	if choice == nil {
+// GetSelectedChoice returns the currently selected choice.
+func (d ChoiceDialog) GetSelectedChoice() *Choice {
+	if d.Cancelled || !d.Selected {
 		return nil
 	}
-	return choice.Value
+	return d.GetHighlightedChoice()
 }
 
 // Run is a convenience method to run the choice selector and return the result.

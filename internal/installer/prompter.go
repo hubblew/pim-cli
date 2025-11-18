@@ -20,21 +20,10 @@ func NewInteractivePrompter() *InteractivePrompter {
 	return &InteractivePrompter{}
 }
 
-const yes = "y"
-const no = "n"
-
 func (p *InteractivePrompter) ConfirmOverwrite(path string) (bool, error) {
 	fmt.Printf("File %s already exists. Overwrite?\n", path)
 
-	dialog := ui.NewChoiceDialog(
-		"Please confirm:",
-		[]ui.Choice{
-			{Label: "Yes", Value: yes},
-			{Label: "No", Value: no},
-		},
-	)
-
-	choice, err := dialog.Run()
+	choice, err := ui.NewChoiceDialog("Please confirm:", ui.ChoicesYesNo()).Run()
 
 	if err != nil {
 		return false, fmt.Errorf("failed to get user input: %w", err)
@@ -43,7 +32,7 @@ func (p *InteractivePrompter) ConfirmOverwrite(path string) (bool, error) {
 		return false, nil
 	}
 
-	return choice.Value == yes, nil
+	return choice.Value.(bool), nil
 }
 
 type AcceptAllPrompter struct{}
